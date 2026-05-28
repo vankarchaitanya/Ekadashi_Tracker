@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Urbanist";
+  src: url('../public/fonts/Urbanist.ttf');
+}
+
+@font-face {
+  font-family: "OpenSans";
+  src: url("../public/fonts/OpenSans.ttf");
+}
+
+
+:root {
+  --background: #233d4d;
+  --foreground: #fe7f2d;
+  --accent: #fcca46;
+  --headings: "OpenSans";
+  --text: "Urbanist";
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --font-sans: var(--headings);
+  --font-mono: var(--text);
+
+}
+
+
+body {
+  background: var(--background);
+
+}
+
+
+
+
+

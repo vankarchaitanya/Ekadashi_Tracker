@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model ekadashi {
+  id           Int         @id @default(autoincrement())
+  naam         String      @db.VarChar(120)
+  doosra_naam  String?     @db.VarChar(120)
+  tithi        DateTime    @db.Date
+  var          String?     @default(dbgenerated("\nCASE EXTRACT(dow FROM tithi)\n    WHEN 0 THEN 'रविवार'::text\n    WHEN 1 THEN 'सोमवार'::text\n    WHEN 2 THEN 'मंगलवार'::text\n    WHEN 3 THEN 'बुधवार'::text\n    WHEN 4 THEN 'गुरुवार'::text\n    WHEN 5 THEN 'शुक्रवार'::text\n    WHEN 6 THEN 'शनिवार'::text\n    ELSE NULL::text\nEND")) @db.VarChar(15)
+  paksha_id    Int
+  maas_id      Int
+  adhik_maas   Boolean?    @default(false)
+  vishesh      Boolean?    @default(false)
+  mahatva      String?
+  vrat_niyam   String?
+  nirmit_samay DateTime?   @default(now()) @db.Timestamptz(6)
+  hindu_month  hindu_month @relation(fields: [maas_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  paksha       paksha      @relation(fields: [paksha_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model english_ekadashi {
+  id                  Int                 @id @default(autoincrement())
+  name                String              @db.VarChar(100)
+  alternate_name      String?             @db.VarChar(100)
+  date                DateTime            @db.Date
+  day_of_week         String?             @default(dbgenerated("\nCASE EXTRACT(dow FROM date)\n    WHEN 0 THEN 'Sunday'::text\n    WHEN 1 THEN 'Monday'::text\n    WHEN 2 THEN 'Tuesday'::text\n    WHEN 3 THEN 'Wednesday'::text\n    WHEN 4 THEN 'Thursday'::text\n    WHEN 5 THEN 'Friday'::text\n    WHEN 6 THEN 'Saturday'::text\n    ELSE NULL::text\nEND")) @db.VarChar(10)
+  paksha_id           Int
+  hindu_month_id      Int
+  is_adhik_maas       Boolean?            @default(false)
+  is_special          Boolean?            @default(false)
+  significance        String?
+  fasting_note        String?
+  created_at          DateTime?           @default(now()) @db.Timestamptz(6)
+  english_hindu_month english_hindu_month @relation(fields: [hindu_month_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  english_paksha      english_paksha      @relation(fields: [paksha_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model english_hindu_month {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique @db.VarChar(50)
+  description      String?
+  english_ekadashi english_ekadashi[]
+}
+
+model english_paksha {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique @db.VarChar(20)
+  description      String?
+  english_ekadashi english_ekadashi[]
+}
+
+model hindu_month {
+  id       Int        @id(map: "hindi_hindu_month_pkey") @default(autoincrement())
+  naam     String     @unique(map: "hindi_hindu_month_naam_key") @db.VarChar(60)
+  vivaran  String?
+  ekadashi ekadashi[]
+}
+
+model paksha {
+  id       Int        @id @default(autoincrement())
+  naam     String     @unique @db.VarChar(30)
+  vivaran  String?
+  ekadashi ekadashi[]
+}
